@@ -1,0 +1,79 @@
+# Write your code here
+from collections import Counter
+
+stock = Counter({"water": 400, "milk": 540, "beans": 120, "cups": 9, "money": 550})
+presso = Counter({"water": 250, "milk": 0, "beans": 16, "cups": 1, "money": -4})
+latte = Counter({"water": 350, "milk": 75, "beans": 20, "cups": 1, "money": -7})
+capp = Counter({"water": 200, "milk": 100, "beans": 12, "cups": 1, "money": -6})
+
+def print_amount():
+    print("The coffee machine has:")
+    print(f"{stock['water']} of water")
+    print(f"{stock['milk']} of milk")
+    print(f"{stock['beans']} of coffee beans")
+    print(f"{stock['cups']} of disposable cups")
+    print(f"{stock['money']} of money")
+
+def buy():
+    print("What do you want to buy? 1 - espresso, 2 - latte, 3 - cappuccino, back - to main menu:")
+    prichut = input()
+    global stock
+    if prichut == "1":
+        control(presso)
+    elif prichut == "2":
+        control(latte)
+    elif prichut == "3":
+        control(capp)
+
+def control(typ):
+    global stock
+    if stock["water"] < typ["water"]:
+        print("Sorry, not enough water!")
+    elif stock["milk"] < typ["milk"]:
+        print("Sorry, not enough milk!")
+    elif stock["beans"] < typ["beans"]:
+        print("Sorry, not enough beans!")
+    elif stock["cups"] < typ["cups"]:
+        print("Sorry, not enough cups!")
+    else:
+        print("I have enough resources, making you a coffee!")
+        stock = stock - typ
+
+def fill():
+    print("Write how many ml of water you want to add:")
+    add_water = int(input())
+    stock["water"] += add_water
+
+    print("Write how many ml of milk you want to add:")
+    add_milk = int(input())
+    stock["milk"] += add_milk
+
+    print("Write how many grams of coffee beans you want to add:")
+    add_beans = int(input())
+    stock["beans"] += add_beans
+
+    print("Write how many disposable coffee cups you want to add:")
+    add_cups = int(input())
+    stock["cups"] += add_cups
+    
+def take():
+    print(f"I gave you ${stock['money']}")
+    stock["money"] = 0
+
+
+while True:
+    print("")
+    print("Write action (buy, fill, take, remaining, exit):")
+    akce = input()
+    print("")
+    if akce == "buy":
+        buy()
+    elif akce == "fill":
+        fill()
+    elif akce == "take":
+        take()
+    elif akce == "exit":
+        break
+    else:
+        print_amount()
+        print("")
