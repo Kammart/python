@@ -1,0 +1,82 @@
+import random
+
+moznosti_default = ["paper", "scissors", "rock"]
+
+
+def score_init():
+    global user_name
+
+    rating_file = open("rating.txt", "r")
+    user_rating = {}
+
+    for rating in rating_file:
+        user, last_score = rating.split(sep=" ", maxsplit=1)
+        user_rating[user] = int(last_score)
+
+    if user_name in user_rating:
+        x = user_rating[user_name]
+    else:
+        x = 0
+
+    return x
+
+
+def vyber_hraciho_listu():
+    global moznosti
+    items = input()
+    if len(items) > 0:
+        return items.split(",")
+    elif len(items) == 0:
+        return moznosti_default
+
+
+def porovnani():
+    global score
+
+    if user_input == computer_input:
+        score += 50
+        print(f"There is a draw ({user_input})")
+    else:
+        n = moznosti.index(user_input)
+        c = (moznosti[n:] + moznosti[:n])
+        l = int(len(c) / 2)
+
+        winners = c[1:l + 1]
+        lost = c[l + 1:]
+
+        if computer_input in lost:
+            score += 100
+            print(f"Well done. The computer chose {computer_input} and failed")
+        elif computer_input in winners:
+            print(f"Sorry, but the computer chose {computer_input}")
+
+
+user_name = input("Enter your name:")
+print(f"Hello, {user_name}")
+
+score = score_init()
+
+moznosti = vyber_hraciho_listu()
+
+
+print("Okay, let's start")
+
+
+while True:
+    user_input = input()
+    computer_input = random.choice(moznosti)
+
+    if user_input == "!exit":
+        break
+    elif user_input == "!rating":
+        print(f"Your rating: {score}")
+        continue
+    elif user_input not in moznosti:
+        print("Invalid input")
+        continue
+    else:
+        porovnani()
+
+
+print("Bye!")
+
