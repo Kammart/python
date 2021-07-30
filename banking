@@ -1,0 +1,177 @@
+# Write your code here
+from random import random, randint
+import sqlite3
+
+
+
+conn = sqlite3.connect('card.s3db')
+cur = conn.cursor()
+
+cur.execute("""CREATE TABLE if not exists card 
+            (id INTEGER PRIMARY KEY AUTOINCREMENT, 
+            number TEXT, 
+            pin TEXT, 
+            balance INT)""")
+conn.commit()
+
+
+def login_check():
+    print("")
+    print("Enter your card number:")
+    login = input()
+    print("Enter your PIN:")
+    password = input()
+    print("")
+
+    cur.execute(f"SELECT id, number, pin, balance FROM card WHERE number = {login};")
+    row = cur.fetchone()
+
+    if row != None and row[2] == password:
+        print("You have successfully logged in!")
+        print("")
+        while True:
+            print("1. Balance")
+            print("2. Add income")
+            print("3. Do transfer")
+            print("4. Close account")
+            print("5. Log out")
+            print("0. Exit")
+            login_input = int(input())
+
+            cur.execute(f"SELECT id, number, pin, balance FROM card WHERE number = {login};")
+            row = cur.fetchone()
+
+            if login_input == 1:
+
+                print_balance(row)
+                continue
+
+            elif login_input == 2:
+                print("Enter income:")
+                income = int(input())
+                cur.execute(f"UPDATE card SET balance = balance + {income} WHERE number = {login};")
+                conn.commit()
+                print("Income was added!")
+                print("")
+                continue
+
+            elif login_input == 3:
+                print("Transfer")
+                print("Enter card number:")
+                transfer_card = input()
+
+                if transfer_card == row[1]:
+                    print("You can't transfer money to the same account!")
+                    print("")
+                    continue
+                elif not luhn_check(int(transfer_card)):
+                    print("Probably you made a mistake in the card number. Please try again!")
+                    print("")
+                    continue
+                elif cur.execute(f"SELECT id, number, pin, balance FROM card WHERE number = {transfer_card};").fetchone() == None:
+                    print("Such a card does not exist.")
+                    print("")
+                    continue
+                else:
+                    print("Enter how much money you want to transfer:")
+                    transfer_amount = int(input())
+                    if transfer_amount > row[3]:
+                        print("Not enough money!")
+                        print("")
+                        continue
+                    else:
+                        cur.execute(f"UPDATE card SET balance = balance - {transfer_amount} WHERE number = {login};")
+                        cur.execute(f"UPDATE card SET balance = balance + {transfer_amount} WHERE number = {transfer_card};")
+                        conn.commit()
+                        print("Success!")
+                        print("")
+                        continue
+
+            elif login_input == 4:
+                cur.execute(f"DELETE FROM card WHERE number = {login};")
+                conn.commit()
+                print("The account has been closed!")
+                break
+
+            elif login_input == 5:
+                print("You have successfully logged out!")
+                break
+
+            elif login_input == 0:
+                return True
+
+    else:
+        print("Wrong card number or PIN!")
+
+
+def print_balance(row):
+    balance = row[3]
+    print(f"Balance: {balance}")
+    print("")
+
+
+def number_generator():
+    client_number = str('%09d' % randint(0, 999999999))
+    list_number_1_15 = [x for x in ('{0}{1}'.format('400000', client_number))]
+
+    check_sum = 10 - sum(
+        [int(z) for z in ''.join([str(int(x) * 2) for x in list_number_1_15[-1::-2]] + list_number_1_15[-2::-2])]) % 10
+    if check_sum == 10:
+        check_sum = 0
+
+    return '{0}{1}{2}'.format('400000', client_number[0:9], str(check_sum))
+
+
+def luhn_check(num):
+    rpos = sum_ = 0
+    while num:
+        num, c = divmod(num, 10)
+        if rpos % 2:
+            sum_ += sum([int(x) for x in str(2 * c)])
+        else:
+            sum_ += c
+        rpos += 1
+    return sum_ % 10 == 0
+
+class Account:
+
+    def __init__(self):
+        self.card_num = number_generator()
+        self.pin = str(randint(0, 9999)).zfill(4)
+
+    @staticmethod
+    def create():
+        acc = Account()
+        print("")
+        print("Your card has been created")
+        print("Your card number:")
+        print(acc.card_num)
+        print("Your card PIN:")
+        print(acc.pin)
+        cur.execute(f"INSERT INTO card (number, pin, balance) VALUES ({acc.card_num}, {acc.pin}, 0);")
+        conn.commit()
+        return acc
+
+
+while True:
+    print("")
+    print("1. Create an account")
+    print("2. Log into account")
+    print("0. Exit")
+    action_choose = int(input())
+
+    if action_choose == 1:
+        new_account = Account()
+        Account.create()
+        continue
+
+    elif action_choose == 2:
+        if login_check():
+            break
+        else:
+            continue
+
+    elif action_choose == 0:
+        break
+
+print("Bye!")
