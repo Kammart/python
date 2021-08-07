@@ -1,0 +1,106 @@
+num_of_applicants = int(input())
+names_of_applicants = []
+
+biotech_accepted = []
+chemistry_accepted = []
+engineering_accepted = []
+mathematics_accepted = []
+physics_accepted = []
+
+
+def sorting(ind):
+    biotech = []
+    chemistry = []
+    engineering = []
+    mathematics = []
+    physics = []
+
+    for i in names_of_applicants:
+        if i[ind] == "Biotech":
+            biotech.append(i)
+        elif i[ind] == "Chemistry":
+            chemistry.append(i)
+        elif i[ind] == "Engineering":
+            engineering.append(i)
+        elif i[ind] == "Mathematics":
+            mathematics.append(i)
+        elif i[ind] == "Physics":
+            physics.append(i)
+
+    biotech_sorted = sorted(biotech, key=lambda x: (-max(float((int(x[3]) + int(x[2])) / 2), float(x[6])), x[0], x[1]))
+    chemistry_sorted = sorted(chemistry, key=lambda x: (-max(float(x[3]), float(x[6])), x[0], x[1]))
+    engineering_sorted = sorted(engineering, key=lambda x: (-max(float((int(x[5]) + int(x[4])) / 2),  float(x[6])), x[0], x[1]))
+    mathematics_sorted = sorted(mathematics, key=lambda x: (-max(float(x[4]), float(x[6])), x[0], x[1]))
+    physics_sorted = sorted(physics, key=lambda x: (-max(float((int(x[2]) + int(x[4])) / 2), float(x[6])), x[0], x[1]))
+
+    choosing(biotech_sorted, biotech_accepted)
+    choosing(chemistry_sorted, chemistry_accepted)
+    choosing(engineering_sorted, engineering_accepted)
+    choosing(mathematics_sorted, mathematics_accepted)
+    choosing(physics_sorted, physics_accepted)
+
+
+def choosing(sorted, accepted):
+
+    if len(accepted) < num_of_applicants:
+        need = num_of_applicants - len(accepted)
+
+        for i in range(min(need, len(sorted))):
+            accepted.append(sorted[i])
+            names_of_applicants.remove(sorted[i])
+
+
+def results():
+
+    b_accepted = sorted(biotech_accepted, key=lambda x: (-max(float((int(x[3]) + int(x[2])) / 2), float(x[6])), x[0], x[1]))
+    c_accepted = sorted(chemistry_accepted, key=lambda x: (-max(float(x[3]), float(x[6])), x[0], x[1]))
+    e_accepted = sorted(engineering_accepted, key=lambda x: (-max(float((int(x[5]) + int(x[4])) / 2),  float(x[6])), x[0], x[1]))
+    m_accepted = sorted(mathematics_accepted, key=lambda x: (-max(float(x[4]), float(x[6])), x[0], x[1]))
+    p_accepted = sorted(physics_accepted, key=lambda x: (-max(float((int(x[2]) + int(x[4])) / 2), float(x[6])), x[0], x[1]))
+
+    b_file = open('biotech.txt', 'w', encoding='utf-8')
+    for i in b_accepted:
+        adept = f"{i[0]} {i[1]} {max(float((int(i[3]) + int(i[2])) / 2), float(i[6]))}"
+        b_file.write(adept + "\n")
+    b_file.close()
+
+    c_file = open('chemistry.txt', 'w', encoding='utf-8')
+    for i in c_accepted:
+        adept = f"{i[0]} {i[1]} {max(float(i[3]), float(i[6]))}"
+        c_file.write(adept + "\n")
+    c_file.close()
+
+    e_file = open('engineering.txt', 'w', encoding='utf-8')
+    for i in e_accepted:
+        adept = f"{i[0]} {i[1]} {max(float((int(i[5]) + int(i[4])) / 2),  float(i[6]))}"
+        e_file.write(adept + "\n")
+    e_file.close()
+
+    m_file = open('mathematics.txt', 'w', encoding='utf-8')
+    for i in m_accepted:
+        adept = f"{i[0]} {i[1]} {max(float(i[4]), float(i[6]))}"
+        m_file.write(adept + "\n")
+    m_file.close()
+
+    p_file = open('physics.txt', 'w', encoding='utf-8')
+    for i in p_accepted:
+        adept = f"{i[0]} {i[1]} {max(float((int(i[2]) + int(i[4])) / 2), float(i[6]))}"
+        p_file.write(adept + "\n")
+    p_file.close()
+
+
+
+with open("applicants.txt", "r", encoding='utf-8') as applicants:
+    for line in applicants:
+        names_of_applicants.append(line.split())
+
+
+sorting(7)
+
+sorting(8)
+
+sorting(9)
+
+results()
+
+
